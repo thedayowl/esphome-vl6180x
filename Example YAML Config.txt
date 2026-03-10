@@ -1,0 +1,59 @@
+external_components:
+  - source:
+      type: local
+      path: components
+
+i2c:
+  id: bus_a
+  sda: GPIO33
+  scl: GPIO35
+  scan: true
+
+vl6180x:
+  # ── Sensor A — custom recovery settings ───────────────────────────────────
+  - id: tof_sensor_a
+    i2c_id: bus_a
+    address: 0x2A
+    enable_pin: GPIO3
+    update_interval: 2s
+
+    range:
+      name: "Sensor A Distance"
+
+    range_status:
+      name: "Sensor A Range Status"
+      # States: OK | No Target | Target Too Close | Out of Range |
+      #         Hardware Fault | Sensor Error | Timeout | Recovering
+
+    lux:
+      name: "Sensor A Ambient Light"
+      update_interval: 30s
+
+    recovery:
+      failure_threshold: 3    # consecutive bad reads before recovery (default: 3)
+      retry_interval: 30s     # wait between reinit attempts (default: 30s)
+      max_retries: 10         # give up after this many failed reinits (default: 10)
+
+  # ── Sensor B — default recovery settings (no recovery: block needed) ──────
+  - id: tof_sensor_b
+    i2c_id: bus_a
+    address: 0x2B
+    enable_pin: GPIO5
+    update_interval: 2s
+
+    range:
+      name: "Sensor B Distance"
+
+    range_status:
+      name: "Sensor B Range Status"
+
+  # ── Sensor C — lux only, no range ─────────────────────────────────────────
+  - id: tof_sensor_c
+    i2c_id: bus_a
+    address: 0x29
+    enable_pin: GPIO6
+    update_interval: 5s
+
+    lux:
+      name: "Sensor C Ambient Light"
+      update_interval: 10s
