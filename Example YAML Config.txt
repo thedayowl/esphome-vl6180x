@@ -1,7 +1,8 @@
 external_components:
   - source:
-      type: local
-      path: components
+      type: git
+      url: https://github.com/thedayowl/esphome-vl6180x
+    components: [vl6180x]
 
 i2c:
   id: bus_a
@@ -24,6 +25,7 @@ vl6180x:
       name: "Sensor A Range Status"
       # States: OK | No Target | Target Too Close | Out of Range |
       #         Hardware Fault | Sensor Error | Timeout | Recovering
+      # (Recovering = failure threshold reached, reinit in progress)
 
     lux:
       name: "Sensor A Ambient Light"
