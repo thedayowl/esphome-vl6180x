@@ -7,7 +7,7 @@ An ESPHome external component for the ST Microelectronics **VL6180X** (range + a
 ## Features
 
 - Range measurement — 0–200 mm, 1 mm resolution, published in mm
-- Range status — text sensor alongside each range sensor reporting `OK`, `No Target`, `Target Too Close`, `Out of Range`, `Hardware Fault`, `Sensor Error`, or `Timeout`
+- Range status — text sensor alongside each range sensor reporting `OK`, `No Target`, `Target Too Close`, `Out of Range`, `Hardware Fault`, `Sensor Error`, `Timeout`, or `Recovering`
 - Ambient light (ALS / lux) — VL6180X only, with independent polling interval
 - Multi-sensor — any number of sensors on one I2C bus via per-sensor XSHUT GPIO pins (practical limit is GPIO count and timing budget — see below)
 - Unique I2C address assignment — sensors are assigned permanent unique addresses at boot; no XSHUT toggling during normal operation
@@ -70,13 +70,42 @@ CE / XSHUT          →   GPIO6   (sensor C)  etc.
 
 ## Installation
 
+### From GitHub (recommended)
+
+No files to download. Add this `external_components` block to your YAML and ESPHome will fetch the component automatically at compile time:
+
+```yaml
+external_components:
+  - source:
+      type: git
+      url: https://github.com/thedayowl/esphome-vl6180x
+    components: [vl6180x]
+```
+
+To pin to a specific release rather than tracking the latest commit, add a `ref:` key:
+
+```yaml
+external_components:
+  - source:
+      type: git
+      url: https://github.com/thedayowl/esphome-vl6180x
+      ref: v1.0.0      # tag, branch, or commit SHA
+    components: [vl6180x]
+```
+
+### Local installation
+
+If you prefer to keep the component files alongside your ESPHome configuration:
+
 1. Copy the `components/vl6180x/` directory into your ESPHome project directory.
-2. Add the `external_components` block shown below to your YAML.
-3. Add one `vl6180x:` list entry per physical sensor.
+2. Use the local source block instead:
 
---- OR ---
-
-1. reference the github repository
+```yaml
+external_components:
+  - source:
+      type: local
+      path: components        # folder containing vl6180x/
+```
 
 ---
 
@@ -87,8 +116,9 @@ CE / XSHUT          →   GPIO6   (sensor C)  etc.
 ```yaml
 external_components:
   - source:
-      type: local
-      path: components        # folder containing vl6180x/
+      type: git
+      url: https://github.com/thedayowl/esphome-vl6180x
+    components: [vl6180x]
 
 i2c:
   sda: GPIO33
@@ -112,8 +142,9 @@ vl6180x:
 ```yaml
 external_components:
   - source:
-      type: local
-      path: components
+      type: git
+      url: https://github.com/thedayowl/esphome-vl6180x
+    components: [vl6180x]
 
 i2c:
   sda: GPIO33
@@ -197,6 +228,7 @@ range_status:
 | `Hardware Fault` | VCSEL or PLL failure — sensor may need power-cycling (codes 1–5) |
 | `Sensor Error` | I2C communication failure |
 | `Timeout` | Sensor did not complete measurement within expected window |
+| `Recovering` | Failure threshold reached; automatic reinitialisation in progress |
 
 The `range_status` sensor is independent of `range` — you can configure one without the other. If only `range_status` is configured (no `range`), measurements still run and the status is still published.
 
@@ -300,13 +332,7 @@ recovery:
 
 The `recovery:` block is optional. If omitted, defaults are applied automatically.
 
-### Range status during recovery
-
-| Status | Meaning |
-|---|---|
-| `Recovering` | Failure threshold reached; reinit in progress or pending |
-
-After successful reinit the status returns to `OK` (or the appropriate measurement state) on the next reading.
+After successful reinitialisation the status returns to `OK` (or the appropriate measurement state) on the next reading. See the [range_status states table](#range_status-sub-entry) for the full list of possible values.
 
 ---
 
