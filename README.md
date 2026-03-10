@@ -174,8 +174,8 @@ vl6180x:
 
   - id: tof_c
     i2c_id: bus_a
-    address: 0x29             # sensor keeping default address — must be last
-    enable_pin: GPIO6         # (the component sorts this automatically)
+    address: 0x29             # sensor keeping default address — must be initialized last, does not have to be last in YAML filw
+    enable_pin: GPIO6         
     update_interval: 2s
     range:
       name: "Sensor C Distance"
