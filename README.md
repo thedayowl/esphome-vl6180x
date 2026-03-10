@@ -74,6 +74,10 @@ CE / XSHUT          →   GPIO6   (sensor C)  etc.
 2. Add the `external_components` block shown below to your YAML.
 3. Add one `vl6180x:` list entry per physical sensor.
 
+--- OR ---
+
+1. reference the github repository
+
 ---
 
 ## YAML configuration reference
